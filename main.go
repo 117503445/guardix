@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"github.com/lextoumbourou/idle"
+	"log"
 )
 
 func push(name string, hour int) {
@@ -24,9 +26,30 @@ func push(name string, hour int) {
 }
 
 func main() {
+	var err error
+	var idleTime time.Duration
+
+	oneSecond, _ := time.ParseDuration("1s")
+
+	for err == nil {
+		idleTime, err = idle.Get()
+
+		if idleTime.Seconds() > 1.0 {
+			log.Printf("Idle for %d seconds.", int(idleTime.Seconds()))
+		}
+
+		time.Sleep(oneSecond)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+
 	viper.SetConfigFile("config.yaml")
 	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
