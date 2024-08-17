@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
-	"github.com/lextoumbourou/idle"
-	"log"
+
+	"github.com/117503445/goutils"
 )
 
 func push(name string, hour int) {
@@ -25,17 +25,61 @@ func push(name string, hour int) {
 	fmt.Println()
 }
 
+
+func a() {
+
+	goutils.InitZeroLog()
+
+	fmt.Println(a)
+	// 获取初始的网络接口统计数据
+	initialStats, err := net.IOCounters(true)
+	if err != nil {
+		fmt.Println("Error getting initial network stats:", err)
+		return
+	}
+
+	// 等待一段时间
+	time.Sleep(1 * time.Second)
+
+	// 获取新的网络接口统计数据
+	newStats, err := net.IOCounters(true)
+	if err != nil {
+		fmt.Println("Error getting new network stats:", err)
+		return
+	}
+
+	// 计算网络速度
+	for i, initialStat := range initialStats {
+		newStat := newStats[i]
+		bytesSentPerSec := newStat.BytesSent - initialStat.BytesSent
+		bytesRecvPerSec := newStat.BytesRecv - initialStat.BytesRecv
+		if bytesSentPerSec > 2000 || bytesRecvPerSec > 2000 {
+			fmt.Println("Network Interface: ", initialStat.Name)
+			fmt.Println("Bytes Sent/sec: ", bytesSentPerSec)
+			fmt.Println("Bytes Recv/sec: ", bytesRecvPerSec)
+		}
+	}
+}
+
 func main() {
+
+	go func() {
+		for {
+			a()
+			// time.Sleep(5 * time.Second)
+		}
+	}()
+
 	var err error
 	var idleTime time.Duration
 
 	oneSecond, _ := time.ParseDuration("1s")
 
 	for err == nil {
-		idleTime, err = idle.Get()
+		
 
 		if idleTime.Seconds() > 1.0 {
-			log.Printf("Idle for %d seconds.", int(idleTime.Seconds()))
+			// log.Printf("Idle for %d seconds.", int(idleTime.Seconds()))
 		}
 
 		time.Sleep(oneSecond)
@@ -45,46 +89,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-
-
-	viper.SetConfigFile("config.yaml")
-	viper.AddConfigPath(".")
-	err = viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
-	name := viper.GetString("name")
-	hour := 0
-	push(name, hour)
-
-	startTime := time.Now()
-	maxTime := 3600 // 1 hour
-
-	for true {
-		time.Sleep(time.Second)
-		duration := int(time.Now().Sub(startTime))
-		durationSecond := duration / 1000000000
-		// fmt.Println(durationSecond)
-		if durationSecond > maxTime {
-			if maxTime == 3600 {
-				maxTime = 3600 * 2
-				startTime = time.Now()
-				hour++
-				push(name, hour)
-				println("end 1 hour")
-			} else if maxTime == 3600*2 {
-				maxTime = 3600 * 4
-				startTime = time.Now()
-				hour += 2
-				push(name, hour)
-				println("end 2 hour")
-			} else if maxTime == 3600*4 {
-				startTime = time.Now()
-				hour += 4
-				push(name, hour)
-				println("end 4 hour")
-			}
-		}
-
-	}
 }
