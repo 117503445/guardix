@@ -1,92 +1,61 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/117503445/goutils"
+	"github.com/117503445/guardix/pkg/action"
+	"github.com/117503445/guardix/pkg/handler"
+	"github.com/rs/zerolog/log"
 )
 
-func push(name string, hour int) {
-	fmt.Println(time.Unix(time.Now().Unix(), 0).Format("2006-01-02 15:04:05"))
-	httpClient := &http.Client{}
-	url := fmt.Sprintf("https://push.gh.117503445.top:20000/push/text/v1?name=%s", name)
-	fmt.Println(url, hour)
-	r, err := httpClient.Post(url, "application/json", strings.NewReader(fmt.Sprintf("电脑已开机%d小时", hour)))
-	b, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(b))
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println()
-}
-
-
-func a() {
-
-	goutils.InitZeroLog()
-
-	fmt.Println(a)
-	// 获取初始的网络接口统计数据
-	initialStats, err := net.IOCounters(true)
-	if err != nil {
-		fmt.Println("Error getting initial network stats:", err)
-		return
-	}
-
-	// 等待一段时间
-	time.Sleep(1 * time.Second)
-
-	// 获取新的网络接口统计数据
-	newStats, err := net.IOCounters(true)
-	if err != nil {
-		fmt.Println("Error getting new network stats:", err)
-		return
-	}
-
-	// 计算网络速度
-	for i, initialStat := range initialStats {
-		newStat := newStats[i]
-		bytesSentPerSec := newStat.BytesSent - initialStat.BytesSent
-		bytesRecvPerSec := newStat.BytesRecv - initialStat.BytesRecv
-		if bytesSentPerSec > 2000 || bytesRecvPerSec > 2000 {
-			fmt.Println("Network Interface: ", initialStat.Name)
-			fmt.Println("Bytes Sent/sec: ", bytesSentPerSec)
-			fmt.Println("Bytes Recv/sec: ", bytesRecvPerSec)
-		}
-	}
-}
-
 func main() {
-
-	go func() {
-		for {
-			a()
-			// time.Sleep(5 * time.Second)
-		}
-	}()
-
-	var err error
-	var idleTime time.Duration
-
-	oneSecond, _ := time.ParseDuration("1s")
-
-	for err == nil {
-		
-
-		if idleTime.Seconds() > 1.0 {
-			// log.Printf("Idle for %d seconds.", int(idleTime.Seconds()))
-		}
-
-		time.Sleep(oneSecond)
+	type Config struct {
+		AlertEndpoint string `koanf:"alert_endpoint"`
+		AlertToken    string `koanf:"alert_token"`
+		AlertChannel  string `koanf:"alert_channel"`
 	}
-
-	if err != nil {
-		log.Fatal(err)
+	config := &Config{
+		AlertEndpoint: "",
+		AlertToken:    "",
+		AlertChannel:  "",
 	}
+	result := goutils.LoadConfig(config)
+	result.Dump()
 
+	idleHandler := handler.NewIdleHandler()
+	netHandler := handler.NewNetHandler(4)
+	nets := []bool{}
+
+	var lastAlertTime time.Time
+
+	for {
+		nets = append(nets, netHandler.Passed())
+		if len(nets) > 5 {
+			nets = nets[1:]
+		}
+		isNetOk := true
+		for _, net := range nets {
+			if !net {
+				isNetOk = false
+				break
+			}
+		}
+
+		isIdleOk := idleHandler.Passed()
+
+		log.Info().Bool("isNetOk", isNetOk).Bool("isIdleOk", isIdleOk).Msg("Check")
+		if isNetOk && isIdleOk {
+			if time.Since(lastAlertTime) > time.Hour {
+				lastAlertTime = time.Now()
+				action.Push(action.Config{
+					AlertEndpoint: config.AlertEndpoint,
+					AlertToken:    config.AlertToken,
+					AlertChannel:  config.AlertChannel,
+				})
+			}
+		}
+
+		time.Sleep(time.Minute)
+	}
 }

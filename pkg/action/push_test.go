@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestSomething(t *testing.T) {
+func TestPush(t *testing.T) {
 	// ast := assert.New(t)
 	req.DevMode() // Treat the package name as a Client, enable development mode
 
@@ -21,6 +21,7 @@ func TestSomething(t *testing.T) {
 	config := &Config{
 		AlertEndpoint: "",
 		AlertToken:    "",
+		AlertChannel:  "",
 	}
 
 	result := goutils.LoadConfig(config)
@@ -30,7 +31,7 @@ func TestSomething(t *testing.T) {
 		map[string]string{
 			"token":       config.AlertToken,
 			"channel":     config.AlertChannel,
-			"title":       "TITLE",
+			"title":       "GUARDIX",
 			"description": "DESCRIPTION",
 			"content":     "DING~", // TODO
 		}).SetHeader("Content-Type", "application/json").

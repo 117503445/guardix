@@ -1,4 +1,4 @@
-package trigger
+package handler
 
 import (
 	"fmt"
@@ -12,9 +12,9 @@ type NetHandler struct {
 	bytesPerSecThreshhold uint64
 }
 
-func NewNetHandler(mbpsThreshhold float64) *NetHandler {
+func NewNetHandler(mbThreshhold float64) *NetHandler {
 	return &NetHandler{
-		bytesPerSecThreshhold: uint64(mbpsThreshhold * 1024 * 1024),
+		bytesPerSecThreshhold: uint64(mbThreshhold * 1024 * 1024),
 	}
 }
 
