@@ -21,3 +21,4 @@ config.toml
 compose.override.yaml
 
 guardix
+note.md

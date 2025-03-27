@@ -17,3 +17,9 @@ tasks:
   build:
     cmds:
       - ./scripts/build.sh
+  
+  shell:
+    deps:
+      - build
+    cmds:
+      - ./scripts/shell.sh
