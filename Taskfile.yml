@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "The default task" 
+    # deps: [deploy]
+    cmds:
+      - clear
+      - task: cli-run
+      
+  fc-build:
+    cmds:
+      - CGO_ENABLED=0 go build -o ./cmd/fc/app ./cmd/fc
