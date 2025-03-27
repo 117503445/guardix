@@ -19,3 +19,5 @@ config.yaml
 config.toml
 
 compose.override.yaml
+
+guardix
