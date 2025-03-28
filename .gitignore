@@ -22,3 +22,5 @@ compose.override.yaml
 
 guardix
 note.md
+
+static.toml
