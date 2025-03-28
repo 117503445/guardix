@@ -10,7 +10,7 @@ import (
 
 type arpResult struct {
 	IP     string `json:"ip"`
-	Mac    string `json:"mac"`
+	Mac    MAC    `json:"mac"`
 	Vendor string `json:"vendor"`
 }
 

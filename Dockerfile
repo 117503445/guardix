@@ -1,4 +1,6 @@
-FROM alpine:3.21
+# FROM alpine:3.21
+# FROM registry.cn-hangzhou.aliyuncs.com/117503445-mirror/sync:linux.amd64.docker.io.library.alpine.3.21
+FROM registry.cn-hangzhou.aliyuncs.com/117503445-mirror/sync@sha256:1c4eef651f65e2f7daee7ee785882ac164b02b78fb74503052a26dc061c90474
 
 WORKDIR /workspace
 

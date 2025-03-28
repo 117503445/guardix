@@ -14,6 +14,22 @@ func main() {
 
 	log.Info().Msg("Starting Guardix")
 
-	w := watcher.NewWatcher(cli.Cli.Subnet)
+	var pc *watcher.Device
+	phones := make([]*watcher.Device, 0)
+	for _, device := range cli.Cli.Devices {
+		if device.Type == "pc" {
+			pc = &watcher.Device{
+				Mac:  watcher.MAC(device.Mac),
+				Name: device.Name,
+			}
+		} else {
+			phones = append(phones, &watcher.Device{
+				Mac:  watcher.MAC(device.Mac),
+				Name: device.Name,
+			})
+		}
+	}
+
+	w := watcher.NewWatcher(cli.Cli.Subnet, pc, phones)
 	w.Start()
 }

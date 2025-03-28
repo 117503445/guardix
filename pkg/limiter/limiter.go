@@ -1,7 +1,7 @@
 package limiter
 
 import (
-	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -14,8 +14,7 @@ type limiter struct {
 	in     chan any
 	out    chan any
 	dur    time.Duration
-	mu     sync.Mutex // 用于保护 ignore 状态
-	ignore bool       // 忽略模式标志
+	ignore uint32 // atomic flag for ignore mode (0 = false, 1 = true)
 }
 
 func NewLimiter(in chan any, out chan any, dur time.Duration) *limiter {
@@ -29,25 +28,27 @@ func (l *limiter) Start() {
 	go func() {
 		for msg := range l.in {
 			if !l.isIgnore() { // 如果不在忽略模式
-				l.out <- msg // 将消息输出到 out
 				l.setIgnore(true)
 				go func() {
 					time.Sleep(l.dur)  // 等待指定的忽略时间
 					l.setIgnore(false) // 忽略模式结束
 				}()
+				l.out <- msg // 将消息输出到 out
+			} else {
+				log.Debug().Msg("ignore by limiter")
 			}
 		}
 	}()
 }
 
 func (l *limiter) isIgnore() bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.ignore
+	return atomic.LoadUint32(&l.ignore) == 1
 }
 
 func (l *limiter) setIgnore(ignore bool) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.ignore = ignore
+	var val uint32 = 0
+	if ignore {
+		val = 1
+	}
+	atomic.StoreUint32(&l.ignore, val)
 }

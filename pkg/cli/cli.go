@@ -7,7 +7,12 @@ import (
 )
 
 var Cli struct {
-	Subnet string `help:"subnet to watch" default:"192.168.1.0/24"`
+	Subnet  string `help:"subnet to watch" default:"192.168.1.0/24"`
+	Devices []*struct {
+		Type string `arg:"" help:"device type" enum:"pc,phone"`
+		Mac  string `arg:"" help:"mac address"`
+		Name string `arg:"" help:"device name"`
+	} `help:"devices"`
 }
 
 func CliLoad() {
