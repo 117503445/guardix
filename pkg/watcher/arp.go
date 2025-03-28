@@ -24,6 +24,9 @@ func arp(subnet string) []*arpResult {
 				"sx", "arp", "--json", subnet,
 			},
 		),
+		&gexec.RunCfg{
+			DisableLog: true,
+		},
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting arp")

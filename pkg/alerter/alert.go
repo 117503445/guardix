@@ -10,6 +10,10 @@ type Alerter struct {
 	token    string
 }
 
+type Event struct {
+	Message string
+}
+
 func NewAlerter(endpoint string, token string) *Alerter {
 	a := &Alerter{endpoint: endpoint,
 		token: token,

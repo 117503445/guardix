@@ -10,21 +10,21 @@ import (
 // 收到 in 后，将其输出到 out，开启忽略模式，时长 dur
 // 忽略模式期间，收到 in，不输出到 out
 // 忽略模式结束后，再次收到 in，输出到 out
-type limiter struct {
-	in     chan any
-	out    chan any
+type limiter[T any] struct {
+	in     chan T
+	out    chan T
 	dur    time.Duration
 	ignore uint32 // atomic flag for ignore mode (0 = false, 1 = true)
 }
 
-func NewLimiter(in chan any, out chan any, dur time.Duration) *limiter {
+func NewLimiter[T any](in chan T, out chan T, dur time.Duration) *limiter[T] {
 	if dur <= 0 {
 		log.Fatal().Msg("dur must be greater than 0")
 	}
-	return &limiter{in: in, out: out, dur: dur}
+	return &limiter[T]{in: in, out: out, dur: dur}
 }
 
-func (l *limiter) Start() {
+func (l *limiter[T]) Start() {
 	go func() {
 		for msg := range l.in {
 			if !l.isIgnore() { // 如果不在忽略模式
@@ -41,11 +41,11 @@ func (l *limiter) Start() {
 	}()
 }
 
-func (l *limiter) isIgnore() bool {
+func (l *limiter[T]) isIgnore() bool {
 	return atomic.LoadUint32(&l.ignore) == 1
 }
 
-func (l *limiter) setIgnore(ignore bool) {
+func (l *limiter[T]) setIgnore(ignore bool) {
 	var val uint32 = 0
 	if ignore {
 		val = 1

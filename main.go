@@ -4,16 +4,18 @@ import (
 	"github.com/117503445/goutils"
 	"github.com/117503445/guardix/pkg/alerter"
 	"github.com/117503445/guardix/pkg/cli"
+	"github.com/117503445/guardix/pkg/common"
+	"github.com/117503445/guardix/pkg/limiter"
 	"github.com/117503445/guardix/pkg/watcher"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	goutils.InitZeroLog()
+	goutils.InitZeroLog(goutils.WithProduction{})
 
 	cli.CliLoad()
-	alerter := alerter.NewAlerter(cli.Cli.Alert.Endpoint, cli.Cli.Alert.Token)
-	alerter.Alert("")
+	a := alerter.NewAlerter(cli.Cli.Alert.Endpoint, cli.Cli.Alert.Token)
+	a.Alert("")
 
 	log.Info().Msg("Starting Guardix")
 
@@ -33,6 +35,16 @@ func main() {
 		}
 	}
 
-	w := watcher.NewWatcher(cli.Cli.Subnet, pc, phones)
-	w.Start()
+	alertChan := make(chan *alerter.Event)
+	LimitedChan := make(chan *alerter.Event)
+
+	w := watcher.NewWatcher(cli.Cli.Subnet, pc, phones, alertChan)
+	go w.Start()
+
+	l := limiter.NewLimiter(alertChan, LimitedChan, common.AlertMuteDuration)
+	go l.Start()
+
+	for alertEvent := range LimitedChan {
+		a.Alert(alertEvent.Message)
+	}
 }
