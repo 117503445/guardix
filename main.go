@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/117503445/goutils"
+	"github.com/117503445/guardix/pkg/alerter"
 	"github.com/117503445/guardix/pkg/cli"
 	"github.com/117503445/guardix/pkg/watcher"
 	"github.com/rs/zerolog/log"
@@ -11,6 +12,8 @@ func main() {
 	goutils.InitZeroLog()
 
 	cli.CliLoad()
+	alerter := alerter.NewAlerter(cli.Cli.Alert.Endpoint, cli.Cli.Alert.Token)
+	alerter.Alert("")
 
 	log.Info().Msg("Starting Guardix")
 

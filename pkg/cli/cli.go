@@ -13,6 +13,10 @@ var Cli struct {
 		Mac  string `arg:"" help:"mac address"`
 		Name string `arg:"" help:"device name"`
 	} `help:"devices"`
+	Alert struct {
+		Endpoint string `help:"alert endpoint"`
+		Token    string `help:"alert token"`
+	} `embed:"" help:"alert settings" prefix:"alert-"`
 }
 
 func CliLoad() {
