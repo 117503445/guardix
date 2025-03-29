@@ -19,8 +19,6 @@ func NewAlerter(endpoint string, token string) *Alerter {
 		token: token,
 	}
 
-	a.testAlert()
-
 	return a
 }
 
@@ -40,7 +38,7 @@ func (a *Alerter) Alert(message string) {
 	}
 }
 
-func (a *Alerter) testAlert() {
+func (a *Alerter) TestAlert() {
 	log.Info().Msg("Testing alert")
 
 	testClient := req.C()

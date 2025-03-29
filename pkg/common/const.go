@@ -9,3 +9,6 @@ const AlertMuteDuration = time.Hour
 // 监控间隔
 const MonitorInterval = time.Minute
 // const MonitorInterval = time.Second
+
+// 监控数据长度
+const METRICS_NUM = 120

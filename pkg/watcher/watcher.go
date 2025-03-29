@@ -54,7 +54,7 @@ func NewWatcher(subnet string,
 	}
 }
 
-const REMAIN_NUM = 120
+
 
 func (w *Watcher) Start() {
 	for {
@@ -72,8 +72,8 @@ func (w *Watcher) Start() {
 
 		appendMetric := func(m *Metric) {
 			w.metricsMap[m.Mac] = append(w.metricsMap[m.Mac], m)
-			if len(w.metricsMap[m.Mac]) > REMAIN_NUM {
-				// keep only last REMAIN_NUM metrics
+			if len(w.metricsMap[m.Mac]) > common.METRICS_NUM {
+				// keep only last common.METRICS_NUM metrics
 				w.metricsMap[m.Mac] = w.metricsMap[m.Mac][1:]
 			}
 		}
@@ -124,8 +124,8 @@ func (w *Watcher) Start() {
 
 		// log.Debug().Interface("metricsMap", w.metricsMap).Send()
 
-		if len(w.metricsMap[w.pc.Mac]) == REMAIN_NUM {
-			const THRESHOLD = int(REMAIN_NUM * 0.95)
+		if len(w.metricsMap[w.pc.Mac]) == common.METRICS_NUM {
+			const THRESHOLD = int(common.METRICS_NUM * 0.95)
 			num := 0
 			for _, metric := range w.metricsMap[w.pc.Mac] {
 				if metric.Found {

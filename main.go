@@ -14,10 +14,9 @@ func main() {
 	goutils.InitZeroLog(goutils.WithProduction{})
 
 	cli.CliLoad()
-	a := alerter.NewAlerter(cli.Cli.Alert.Endpoint, cli.Cli.Alert.Token)
-	a.Alert("")
-
 	log.Info().Msg("Starting Guardix")
+	a := alerter.NewAlerter(cli.Cli.Alert.Endpoint, cli.Cli.Alert.Token)
+	a.TestAlert()
 
 	var pc *watcher.Device
 	phones := make([]*watcher.Device, 0)
