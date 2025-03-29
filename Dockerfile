@@ -4,7 +4,7 @@ FROM registry.cn-hangzhou.aliyuncs.com/117503445-mirror/sync@sha256:1c4eef651f65
 
 WORKDIR /workspace
 
-RUN apk add --no-cache nmap curl
+RUN apk add --no-cache curl
 
 RUN curl -LO https://github.com/v-byte-cpu/sx/releases/download/v0.5.0/sx_0.5.0_linux_amd64.tar.gz && tar -xzf sx_0.5.0_linux_amd64.tar.gz && mv sx /usr/local/bin/sx && rm sx_0.5.0_linux_amd64.tar.gz
 
