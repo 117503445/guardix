@@ -28,7 +28,7 @@ func (a *Alerter) Alert(message string) {
 	_, err := req.SetBodyJsonMarshal(
 		map[string]string{
 			"token":       a.token,
-			"title":       "TITLE",
+			"title":       "[guardix] 警告",
 			"description": "DESCRIPTION",
 			"content":     message,
 		}).SetHeader("Content-Type", "application/json").
